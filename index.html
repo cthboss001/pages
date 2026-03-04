@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>cthboss001 · Projects</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --accent: #7c6af7;
+      --accent2: #f76a8a;
+      --accent3: #6af7c8;
+      --card-bg: #13131d;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background grain + grid ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,106,247,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,106,247,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Glow orbs ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(124,106,247,0.12); top: -150px; left: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(247,106,138,0.08); bottom: 0; right: -100px; }
+    .orb-3 { width: 300px; height: 300px; background: rgba(106,247,200,0.06); top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+    /* ── Layout ── */
+    .wrapper { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+
+    /* ── Header ── */
+    header {
+      padding: 72px 0 56px;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(124,106,247,0.12);
+      border: 1px solid rgba(124,106,247,0.25);
+      color: #a89cf7;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+    .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+
+    h1 .line { display: block; }
+    h1 .highlight {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%, var(--accent3) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 500px;
+      line-height: 1.6;
+    }
+
+    /* ── Stats bar ── */
+    .stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 40px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      animation: fadeUp 0.7s 0.15s ease both;
+      flex-wrap: wrap;
+    }
+    .stat-item { display: flex; flex-direction: column; gap: 2px; }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .stat-label { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+    /* ── Filter tabs ── */
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 7px 16px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* ── Search ── */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 40px;
+      animation: fadeUp 0.7s 0.25s ease both;
+    }
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    #searchInput {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      padding: 11px 16px 11px 40px;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #searchInput::placeholder { color: var(--muted); }
+    #searchInput:focus { border-color: var(--accent); }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      position: relative;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      opacity: 0;
+      background: linear-gradient(135deg, rgba(124,106,247,0.06), rgba(247,106,138,0.04));
+      transition: opacity 0.25s;
+      pointer-events: none;
+    }
+    .card:hover { transform: translateY(-4px); border-color: rgba(124,106,247,0.35); box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,106,247,0.1); }
+    .card:hover::after { opacity: 1; }
+
+    .card-thumb {
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(135deg, #1a1a28 0%, #13131d 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-thumb .thumb-bg {
+      position: absolute;
+      inset: 0;
+      opacity: 0.5;
+    }
+    .card-thumb .emoji { position: relative; z-index: 1; }
+
+    .card-body { padding: 20px 22px 22px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .card-arrow {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      background: var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 12px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .card:hover .card-arrow { background: var(--accent); color: #fff; }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      padding: 3px 9px;
+      border-radius: 100px;
+      border: 1px solid;
+    }
+    .tag-purple { color: #a89cf7; border-color: rgba(124,106,247,0.3); background: rgba(124,106,247,0.08); }
+    .tag-pink   { color: #f78aa2; border-color: rgba(247,106,138,0.3); background: rgba(247,106,138,0.08); }
+    .tag-green  { color: #6af7c8; border-color: rgba(106,247,200,0.3); background: rgba(106,247,200,0.08); }
+    .tag-blue   { color: #6ab4f7; border-color: rgba(106,180,247,0.3); background: rgba(106,180,247,0.08); }
+    .tag-orange { color: #f7b06a; border-color: rgba(247,176,106,0.3); background: rgba(247,176,106,0.08); }
+
+    /* ── Empty state ── */
+    #emptyState {
+      display: none;
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 64px 0;
+      color: var(--muted);
+    }
+    #emptyState .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      margin-top: 80px;
+      padding: 32px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+      animation: fadeUp 0.7s 0.4s ease both;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card { animation: fadeUp 0.5s ease both; }
+    .card:nth-child(1)  { animation-delay: 0.05s }
+    .card:nth-child(2)  { animation-delay: 0.10s }
+    .card:nth-child(3)  { animation-delay: 0.15s }
+    .card:nth-child(4)  { animation-delay: 0.20s }
+    .card:nth-child(5)  { animation-delay: 0.25s }
+    .card:nth-child(6)  { animation-delay: 0.30s }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .wrapper { padding: 0 20px; }
+      header { padding: 48px 0 40px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="noise"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="wrapper">
+
+    <!-- ═══════════════════════════════════════════
+         ▶ EDIT SECTION 1: Your name & tagline
+    ═══════════════════════════════════════════ -->
+    <header>
+      <div class="badge">Portfolio</div>
+      <h1>
+        <span class="line highlight">cthboss001</span>
+        <span class="line">Projects</span>
+      </h1>
+      <p class="subtitle">
+        A curated collection of tools, scripts, and web apps I've built and deployed. Click any card to visit the live project.
+      </p>
+
+      <!-- ═══════════════════════════════════════════
+           ▶ EDIT SECTION 2: Stats (optional, can remove)
+           Change the numbers and labels to match yours.
+      ═══════════════════════════════════════════ -->
+      <div class="stats">
+        <div class="stat-item">
+          <span class="stat-num" id="projectCount">0</span>
+          <span class="stat-label">Projects</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">GitHub Pages</span>
+          <span class="stat-label">Hosted on</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Filter tabs (auto-generated from tags) -->
+    <div class="filters" id="filters"></div>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Search projects…" oninput="filterCards()">
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         ▶ EDIT SECTION 3: YOUR PROJECTS LIST
+         
+         Add or remove <a class="card"> blocks below.
+         Each card needs:
+           data-tags  → comma-separated tags for filtering
+           href       → your GitHub Pages URL
+         
+         Inside each card you can change:
+           • The emoji in .card-thumb (for visual variety)
+           • The thumb-bg gradient (or remove it)
+           • The .card-title text
+           • The .card-desc text
+           • The .tag elements (use tag-purple/pink/green/blue/orange)
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="grid" id="projectGrid">
+
+      <!-- ── pages ── -->
+      <a class="card" href="https://cthboss001.github.io/pages" target="_blank" rel="noopener" data-tags="Portfolio,HTML" data-repo="https://github.com/cthboss001/pages" data-pages="https://cthboss001.github.io/pages">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #1a1030 0%, #2d1a5a 100%);"></div>
+          <span class="emoji">🗂️</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">Project Showcase</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">This portfolio page — a central hub listing all deployed GitHub Pages projects in one place.</p>
+          <div class="card-meta">
+            <span class="tag tag-purple">Portfolio</span>
+            <span class="tag tag-blue">HTML</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── WL ── -->
+      <a class="card" href="https://cthboss001.github.io/WL" target="_blank" rel="noopener" data-tags="HTML,Web" data-repo="https://github.com/cthboss001/WL" data-pages="https://cthboss001.github.io/WL">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #0d2030 0%, #0d3555 100%);"></div>
+          <span class="emoji">📋</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">WL</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">A web project built with HTML — recently updated and actively maintained.</p>
+          <div class="card-meta">
+            <span class="tag tag-blue">HTML</span>
+            <span class="tag tag-green">Web</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── YouTube Bangla Filter ── -->
+      <a class="card" href="https://cthboss001.github.io/YouTube-Homepage-Bangla-Filter" target="_blank" rel="noopener" data-tags="JavaScript,Userscript,Browser" data-repo="https://github.com/cthboss001/YouTube-Homepage-Bangla-Filter" data-pages="https://cthboss001.github.io/YouTube-Homepage-Bangla-Filter">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #2a0d0d 0%, #4a1010 100%);"></div>
+          <span class="emoji">🎬</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">YouTube Bangla Filter</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">Userscript that removes videos with Bangla titles from the YouTube homepage for a cleaner browsing experience.</p>
+          <div class="card-meta">
+            <span class="tag tag-orange">JavaScript</span>
+            <span class="tag tag-pink">Userscript</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── movie ── -->
+      <a class="card" href="https://cthboss001.github.io/movie" target="_blank" rel="noopener" data-tags="HTML,Movies,Web" data-repo="https://github.com/cthboss001/movie" data-pages="https://cthboss001.github.io/movie">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #0d1a30 0%, #102040 100%);"></div>
+          <span class="emoji">🎥</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">Movie</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">An HTML-based movie-related web project for browsing or discovering films.</p>
+          <div class="card-meta">
+            <span class="tag tag-blue">HTML</span>
+            <span class="tag tag-purple">Movies</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── PixelDrain Video Streamer ── -->
+      <a class="card" href="https://cthboss001.github.io/PixelDrain-Direct-Video-Streamer" target="_blank" rel="noopener" data-tags="JavaScript,Userscript,Streaming" data-repo="https://github.com/cthboss001/PixelDrain-Direct-Video-Streamer" data-pages="https://cthboss001.github.io/PixelDrain-Direct-Video-Streamer">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #0d2a20 0%, #104030 100%);"></div>
+          <span class="emoji">▶️</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">PixelDrain Video Streamer</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">Lightweight Tampermonkey script that replaces the PixelDrain viewer with a direct autoplaying HTML5 video player.</p>
+          <div class="card-meta">
+            <span class="tag tag-green">JavaScript</span>
+            <span class="tag tag-pink">Userscript</span>
+            <span class="tag tag-blue">Streaming</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── ACC ── -->
+      <a class="card" href="https://cthboss001.github.io/ACC" target="_blank" rel="noopener" data-tags="HTML,Web" data-repo="https://github.com/cthboss001/ACC" data-pages="https://cthboss001.github.io/ACC">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #1a1a0d 0%, #302a10 100%);"></div>
+          <span class="emoji">⚙️</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">ACC</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">An HTML web project — a focused tool or utility built and deployed on GitHub Pages.</p>
+          <div class="card-meta">
+            <span class="tag tag-orange">HTML</span>
+            <span class="tag tag-green">Web</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── LIVE-NOW-2026 ── -->
+      <a class="card" href="https://cthboss001.github.io/LIVE-NOW-2026" target="_blank" rel="noopener" data-tags="TypeScript,Live,Web" data-repo="https://github.com/cthboss001/LIVE-NOW-2026" data-pages="https://cthboss001.github.io/LIVE-NOW-2026">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #2a0d20 0%, #450f30 100%);"></div>
+          <span class="emoji">🔴</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">Live Now 2026</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">A TypeScript-powered live content or streaming tracker for 2026 — an upgraded version of the original LIVE-NOW project.</p>
+          <div class="card-meta">
+            <span class="tag tag-purple">TypeScript</span>
+            <span class="tag tag-pink">Live</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── Codeforces Problem Tracker ── -->
+      <a class="card" href="https://cthboss001.github.io/Codeforces-Problem-Tracker" target="_blank" rel="noopener" data-tags="JavaScript,Competitive,Tool" data-repo="https://github.com/cthboss001/Codeforces-Problem-Tracker" data-pages="https://cthboss001.github.io/Codeforces-Problem-Tracker">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #0d1a2a 0%, #102535 100%);"></div>
+          <span class="emoji">📊</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">Codeforces Problem Tracker</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">Track your Codeforces problem-solving progress. Manage and monitor solved problems with an organised dashboard.</p>
+          <div class="card-meta">
+            <span class="tag tag-blue">JavaScript</span>
+            <span class="tag tag-green">Competitive</span>
+            <span class="tag tag-orange">Tool</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── Codeforces Problem Copier ── -->
+      <a class="card" href="https://cthboss001.github.io/codeforces-problem-copier" target="_blank" rel="noopener" data-tags="JavaScript,Userscript,Competitive" data-repo="https://github.com/cthboss001/codeforces-problem-copier" data-pages="https://cthboss001.github.io/codeforces-problem-copier">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #0d2020 0%, #103030 100%);"></div>
+          <span class="emoji">📋</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">Codeforces Problem Copier</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">Tampermonkey userscript that adds a one-click button to copy Codeforces problem statements with full formatting.</p>
+          <div class="card-meta">
+            <span class="tag tag-green">JavaScript</span>
+            <span class="tag tag-pink">Userscript</span>
+            <span class="tag tag-blue">Competitive</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── LIVE-NOW ── -->
+      <a class="card" href="https://cthboss001.github.io/LIVE-NOW" target="_blank" rel="noopener" data-tags="HTML,Live,Web" data-repo="https://github.com/cthboss001/LIVE-NOW" data-pages="https://cthboss001.github.io/LIVE-NOW">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #2a150d 0%, #40200d 100%);"></div>
+          <span class="emoji">📡</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">Live Now</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">The original live content tracker — a clean HTML interface for monitoring what's currently live or streaming.</p>
+          <div class="card-meta">
+            <span class="tag tag-orange">HTML</span>
+            <span class="tag tag-pink">Live</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── Tazim ── -->
+      <a class="card" href="https://cthboss001.github.io/Tazim" target="_blank" rel="noopener" data-tags="CSS,Web" data-repo="https://github.com/cthboss001/Tazim" data-pages="https://cthboss001.github.io/Tazim">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #1a0d2a 0%, #2a1040 100%);"></div>
+          <span class="emoji">🎨</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">Tazim</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">A CSS-driven web project — a personal or UI-focused build showcasing styling and layout skills.</p>
+          <div class="card-meta">
+            <span class="tag tag-purple">CSS</span>
+            <span class="tag tag-blue">Web</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── pupil ── -->
+      <a class="card" href="https://cthboss001.github.io/pupil" target="_blank" rel="noopener" data-tags="HTML,Web" data-repo="https://github.com/cthboss001/pupil" data-pages="https://cthboss001.github.io/pupil">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #0d200d 0%, #102510 100%);"></div>
+          <span class="emoji">🧑‍🎓</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">Pupil</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">An HTML-based web project — possibly educational or student-focused in nature.</p>
+          <div class="card-meta">
+            <span class="tag tag-green">HTML</span>
+            <span class="tag tag-blue">Web</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── Social Media to Cobalt Auto Extractor ── -->
+      <a class="card" href="https://cthboss001.github.io/Social-media-to-cobalt-auto-extractor" target="_blank" rel="noopener" data-tags="Userscript,Tool,Download" data-repo="https://github.com/cthboss001/Social-media-to-cobalt-auto-extractor" data-pages="https://cthboss001.github.io/Social-media-to-cobalt-auto-extractor">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #0d1a30 0%, #0f2040 100%);"></div>
+          <span class="emoji">⬇️</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">Social Media Cobalt Extractor</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">Auto-redirects Facebook, Instagram, TikTok & VK links to cobalt.tools, fills the form, and submits — fully automated social media downloads.</p>
+          <div class="card-meta">
+            <span class="tag tag-pink">Userscript</span>
+            <span class="tag tag-orange">Tool</span>
+            <span class="tag tag-blue">Download</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── IMDb to CircleFTP ── -->
+      <a class="card" href="https://cthboss001.github.io/IMDb-and-Letterboxd-to-CircleFTP-Search-Script" target="_blank" rel="noopener" data-tags="Userscript,Tool,Movies" data-repo="https://github.com/cthboss001/IMDb-and-Letterboxd-to-CircleFTP-Search-Script" data-pages="https://cthboss001.github.io/IMDb-and-Letterboxd-to-CircleFTP-Search-Script">
+        <div class="card-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #201a0d 0%, #352510 100%);"></div>
+          <span class="emoji">🔎</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-title">IMDb → CircleFTP Search</span>
+            <span class="card-arrow">↗</span>
+          </div>
+          <p class="card-desc">Adds a quick search button on IMDb & Letterboxd pages to instantly search for any movie or TV show on your ISP's CircleFTP server.</p>
+          <div class="card-meta">
+            <span class="tag tag-orange">Userscript</span>
+            <span class="tag tag-purple">Movies</span>
+            <span class="tag tag-green">Tool</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── ADD MORE PROJECTS HERE ── -->
+      <!-- Copy any card block above and paste it here -->
+
+      <!-- Empty state -->
+      <div id="emptyState">
+        <div class="empty-icon">🔍</div>
+        <p>No projects match your search.</p>
+      </div>
+
+    </div>
+    <!-- END of project grid -->
+
+    <footer>
+      <p>Built with care · Hosted on GitHub Pages</p>
+    </footer>
+
+  </div><!-- end .wrapper -->
+
+  <script>
+    const cards = document.querySelectorAll('.card[data-tags]');
+
+    // ── Auto-count projects ──
+    document.getElementById('projectCount').textContent = cards.length;
+
+    // ── Hardcoded: repos WITH live GitHub Pages ──
+    const livePages = new Set([
+      'pages', 'WL', 'movie', 'ACC', 'LIVE-NOW', 'Tazim', 'pupil'
+    ]);
+
+    cards.forEach(card => {
+      const repoUrl  = card.dataset.repo;
+      const pagesUrl = card.dataset.pages;
+      const repoName = repoUrl ? repoUrl.split('/').pop() : '';
+      const arrow    = card.querySelector('.card-arrow');
+
+      if (livePages.has(repoName)) {
+        card.href = pagesUrl;
+        arrow.title = 'Live site';
+      } else {
+        card.href = repoUrl;
+        arrow.title = 'View repository';
+        arrow.style.cssText = 'font-size:11px; background: #1e1e2e;';
+        arrow.textContent = '⌥';
+      }
+    });
+
+    // ── Build filter tabs from tags ──
+    const allTags = new Set();
+    cards.forEach(c => c.dataset.tags.split(',').forEach(t => allTags.add(t.trim())));
+
+    const filtersEl = document.getElementById('filters');
+    const allBtn = document.createElement('button');
+    allBtn.className = 'filter-btn active';
+    allBtn.textContent = 'All';
+    allBtn.onclick = () => setFilter('All');
+    filtersEl.appendChild(allBtn);
+
+    allTags.forEach(tag => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.textContent = tag;
+      btn.onclick = () => setFilter(tag);
+      filtersEl.appendChild(btn);
+    });
+
+    let activeFilter = 'All';
+
+    function setFilter(tag) {
+      activeFilter = tag;
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.toggle('active', b.textContent === tag);
+      });
+      filterCards();
+    }
+
+    function filterCards() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      let visible = 0;
+      cards.forEach(card => {
+        const tags  = card.dataset.tags.toLowerCase();
+        const title = card.querySelector('.card-title').textContent.toLowerCase();
+        const desc  = card.querySelector('.card-desc').textContent.toLowerCase();
+        const matchesFilter = activeFilter === 'All' || tags.includes(activeFilter.toLowerCase());
+        const matchesSearch = !q || title.includes(q) || desc.includes(q) || tags.includes(q);
+        const show = matchesFilter && matchesSearch;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('emptyState').style.display = visible === 0 ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
